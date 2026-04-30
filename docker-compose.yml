@@ -28,3 +28,14 @@ services:
     depends_on:
       - swift-token-server
     restart: unless-stopped
+
+  swift-mcp-gateway:
+    image: everyday-ai/swift-mcp-gateway:v0.1.0-dev
+    container_name: swift-mcp-gateway
+    environment:
+      - PROXY_BASE_URL=http://swift-token-server:8080/proxy
+    ports:
+      - "85:8080"
+    depends_on:
+      - swift-token-server
+    restart: unless-stopped
