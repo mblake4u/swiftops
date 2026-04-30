@@ -1,7 +1,19 @@
+# docker-compose.staging.yml
+# Staging stack — Windows home lab.
+#
+# Usage:
+#   docker compose -f docker-compose.staging.yml up -d
+#
+# Prerequisites: build all four images first (see docs/staging-setup-briefing.md).
+# Secrets required at runtime (NOT in git):
+#   ../swift-token-server/.env
+#   ../swift-token-server/Sandbox-Certificate.pem
+#   ../swift-token-server/Sandbox-Privatekey.pem
+
 services:
 
   swift-token-server:
-    image: everyday-ai/swift-token-server:v0.3.2-dev
+    image: everyday-ai/swift-token-server:v0.3.2-staging
     container_name: swift-token-server
     env_file:
       - ../swift-token-server/.env
@@ -10,14 +22,14 @@ services:
     restart: unless-stopped
 
   swift-swagger-ui:
-    image: everyday-ai/swift-swagger-ui:v1.1.0-dev
+    image: everyday-ai/swift-swagger-ui:v1.1.0-staging
     container_name: swift-swagger-ui
     ports:
       - "83:8080"
     restart: unless-stopped
 
   swift-ui-client:
-    image: everyday-ai/swift-ui-client:v0.1.0-dev
+    image: everyday-ai/swift-ui-client:v0.1.0-staging
     container_name: swift-ui-client
     environment:
       - PROXY_BASE_URL=http://swift-token-server:8080/proxy
@@ -30,7 +42,7 @@ services:
     restart: unless-stopped
 
   swift-mcp-gateway:
-    image: everyday-ai/swift-mcp-gateway:v0.1.0-dev
+    image: everyday-ai/swift-mcp-gateway:v0.1.0-staging
     container_name: swift-mcp-gateway
     environment:
       - PROXY_BASE_URL=http://swift-token-server:8080/proxy
