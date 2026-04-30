@@ -24,13 +24,13 @@ All repos are public on GitHub under `mblake4u`.
 All repos must be siblings in the same parent folder. Suggested:
 
 ```
-C:\repos\
+C:\repos\github\mblake4u\
 ```
 
 Create it if it does not exist:
 
 ```powershell
-New-Item -ItemType Directory -Force -Path C:\repos
+New-Item -ItemType Directory -Force -Path C:\repos\github\mblake4u
 ```
 
 ---
@@ -38,7 +38,7 @@ New-Item -ItemType Directory -Force -Path C:\repos
 ## Step 2 — Clone all repos
 
 ```powershell
-cd C:\repos
+cd C:\repos\github\mblake4u
 git clone https://github.com/mblake4u/swift-token-server.git
 git clone https://github.com/mblake4u/swift-swagger-ui.git
 git clone https://github.com/mblake4u/swift-ui-client.git
@@ -50,22 +50,22 @@ git clone https://github.com/mblake4u/swiftops.git
 
 ## Step 3 — Place the runtime secrets
 
-Three secret files must be copied into `C:\repos\swift-token-server\` before
+Three secret files must be copied into `C:\repos\github\mblake4u\swift-token-server\` before
 the stack will start. The user will provide these — do not proceed until they
 are in place:
 
 ```
-C:\repos\swift-token-server\.env
-C:\repos\swift-token-server\Sandbox-Certificate.pem
-C:\repos\swift-token-server\Sandbox-Privatekey.pem
+C:\repos\github\mblake4u\swift-token-server\.env
+C:\repos\github\mblake4u\swift-token-server\Sandbox-Certificate.pem
+C:\repos\github\mblake4u\swift-token-server\Sandbox-Privatekey.pem
 ```
 
 Verify they exist:
 
 ```powershell
-Test-Path C:\repos\swift-token-server\.env
-Test-Path C:\repos\swift-token-server\Sandbox-Certificate.pem
-Test-Path C:\repos\swift-token-server\Sandbox-Privatekey.pem
+Test-Path C:\repos\github\mblake4u\swift-token-server\.env
+Test-Path C:\repos\github\mblake4u\swift-token-server\Sandbox-Certificate.pem
+Test-Path C:\repos\github\mblake4u\swift-token-server\Sandbox-Privatekey.pem
 ```
 
 All three must return `True` before continuing.
@@ -77,16 +77,16 @@ All three must return `True` before continuing.
 Run each build from its repo directory. Docker Desktop must be running.
 
 ```powershell
-cd C:\repos\swift-token-server
+cd C:\repos\github\mblake4u\swift-token-server
 docker build -t everyday-ai/swift-token-server:v0.3.2-staging .
 
-cd C:\repos\swift-swagger-ui
+cd C:\repos\github\mblake4u\swift-swagger-ui
 docker build -t everyday-ai/swift-swagger-ui:v1.1.0-staging .
 
-cd C:\repos\swift-ui-client
+cd C:\repos\github\mblake4u\swift-ui-client
 docker build -t everyday-ai/swift-ui-client:v0.1.0-staging .
 
-cd C:\repos\swift-mcp-gateway
+cd C:\repos\github\mblake4u\swift-mcp-gateway
 docker build -t everyday-ai/swift-mcp-gateway:v0.1.0-staging .
 ```
 
@@ -103,7 +103,7 @@ Expected output — four lines, one per image with `-staging` tag.
 ## Step 5 — Start the stack
 
 ```powershell
-cd C:\repos\swiftops
+cd C:\repos\github\mblake4u\swiftops
 docker compose -f docker-compose.staging.yml up -d
 ```
 
