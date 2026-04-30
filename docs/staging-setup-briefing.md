@@ -72,9 +72,19 @@ All three must return `True` before continuing.
 
 ---
 
-## Step 4 — Build all four Docker images
+## Step 4 — Check out staging branches and build Docker images
 
-Run each build from its repo directory. Docker Desktop must be running.
+Each repo has a `staging` branch. Check it out before building so the images
+correspond to the correct branch per the project's branch/tag model.
+
+```powershell
+cd C:\repos\github\mblake4u\swift-token-server;  git checkout staging
+cd C:\repos\github\mblake4u\swift-swagger-ui;    git checkout staging
+cd C:\repos\github\mblake4u\swift-ui-client;     git checkout staging
+cd C:\repos\github\mblake4u\swift-mcp-gateway;   git checkout staging
+```
+
+Then build each image. Docker Desktop must be running.
 
 ```powershell
 cd C:\repos\github\mblake4u\swift-token-server
