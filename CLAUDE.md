@@ -4,16 +4,62 @@
 
 ## Project Overview
 
-SwiftOps is an open-source Swift Alliance Cloud API tooling initiative built on a zero-footprint Docker stack.
+SwiftOps is a personal R&D project building Swift Alliance Cloud API tooling on a zero-footprint Docker stack, with an active commercialisation direction (Track 3 / Fork 3) under exploration.
 
-**Goals (in priority order):**
-1. Build useful Swift API tooling, MCPs, and services
-2. Technical portfolio: Solutions Architect / API+Integration Specialist / AI Tooling Engineer
-3. Explore innovative Swift API use cases once foundation is solid
+**Two parallel goals, kept in 50/50 balance — do NOT collapse to one:**
+
+1. **Product** — build genuinely useful Swift API tooling, MCPs, and services
+2. **Portfolio** — demonstrate skills for Solutions Architect / API+Integration Specialist / AI Tooling Engineer roles
+
+**Open-source remains a viable end-state for Track 3.** The OSS-vs-commercial decision is deferred until first design-partner conversations (SCB) close. Never assume commercial-only.
 
 ---
 
-## Current Stack
+## Three Tracks
+
+Following two pivots (2026-04-23 zero-footprint, 2026-04-30 path/fork direction), SwiftOps operates three tracks in parallel. Don't mix track contexts.
+
+| Track | Purpose | Status |
+|---|---|---|
+| **Track 1 — MGW lab** | Production-grade Swift Microgateway test lab. Foundation for any future MGW-based work. | Stable, paused |
+| **Track 2 — Zero-Footprint Docker stack** | Direct sandbox API dev infrastructure. Token server + Swagger UI + UI client + planned MCP gateway. | Active development |
+| **Track 3 — Fork 3 Commercialisation Direction** | Product direction crystallised: MCP integration layer over BYO data licences, anchored on SCB. Commercial vs open-source end-state undecided. | Active scoping |
+
+The **Swift API MCP gateway is the convergence point of Track 2 (build) and Track 3 (commercialise)**.
+
+When the user asks about "roadmap", "status", or "what's next", first clarify which track — or answer per-track.
+
+---
+
+## Track 3 — Product Direction (Fork 3)
+
+**Fork 3:** an **MCP integration layer over BYO (bring-your-own) data licences**. Multi-source. Sells to banks (Path 1 channel — slow, sticky, high-ACV) AND corporate treasury / accounts payable (direct, mid-cycle).
+
+The customer brings their SwiftRef licence, gpi entitlement, CoP/VoP scheme membership. Fork 3 provides the agent surface, multi-source resolution, auth/tenancy model, and published evals — not the underlying data.
+
+**Decided (do not reopen):**
+- **Paths in scope:** Path 1 (bank-internal tooling) + Path 4 read-only Buckets A (informational) and B (recommendation, human approves)
+- **Anchor customer:** SCB = **Southern Commercial Bank N.V.** (SCOM Bank), Tourtonnelaan 33, Paramaribo. ~26 employees. Website: `scombank.sr`. **NOT** De Surinaamsche Bank N.V. (DSB) — DSB is on Fiserv and is sometimes mis-attributed; do not confuse. Hard rule (ADR-006).
+- **Operating entity:** UK Ltd primary
+- **Execution route:** Netlink-sponsored (Netlink holds Alliance Cloud / Alliance Connect Virtual / Swift Business Connect Partner membership)
+
+**Closed (do not propose):**
+- **Path 2c — retail funds-routing.** PSRs 2017 reg.138 / PSD2 / 18 USC §1960 / Suriname WTK 2011 — unauthorised payment service. (ADR-005)
+- **Fork 1 — data redistribution.** RELX/LSEG-scale incumbents + commodity floor. (ADR-004)
+- **Fork 2 — VoP/BAV specialist.** iPiD/SurePay incumbency, EU IPR window already closed. (ADR-004)
+- **Path 4(c) — autonomous transactional MCP.** 24–36-month research bet; Swift has no agent identity model + PSD2/OFAC strict liability. (ADR-005)
+- **Path 5 BaaS-style sponsor variant.** Collapses to PI/EMI requirement; Synapse/Solid/Bond cautionary precedent. (ADR-005)
+
+**Design defaults:**
+- **Permissioning:** open decision — candidates include OAuth 2.1 + PKCE (Plaid/Narmi pattern, human-rooted), OAuth + RFC 9396 RAR (fine-grained per-call scoping for Bucket B), DPoP (sender-constrained tokens), Dynamic Client Registration + mTLS (per-agent identity), and SPIFFE/SPIRE (self-hosted workload identity). The agent-identity dimension matters: OAuth 2.0 alone was designed for human-delegated access. Bucket B's human-approval gate must be cryptographically bound to the approving operator, not just to the agent's session.
+- **Write semantics:** read-propose-approve (Slash pattern) for Bucket B — never autonomous-transactional
+- **Architecture:** multi-source-neutral integration layer (the moat against any single data provider shipping their own MCP wrapper)
+
+If a suggestion drifts toward a closed item, stop and flag it as a closed decision rather than proposing — name the ADR being challenged before pivoting.
+
+---
+
+## Current Stack (Track 2)
 
 | Component | Detail |
 |---|---|
@@ -26,10 +72,11 @@ SwiftOps is an open-source Swift Alliance Cloud API tooling initiative built on 
 
 ### Containers
 
-**swift-token-server** (`everyday-ai/swift-token-server:v0.3.1-dev`, port 82)
+**swift-token-server** (`everyday-ai/swift-token-server:v0.3.2-dev`, port 82)
 - Flask + gunicorn
 - `GET /token` returns OAuth Bearer token from sandbox.swift.com via RFC 7523 JWT-Bearer
 - `GET|POST|... /proxy/<path>` — CORS proxy with token caching
+- `X-SWIFT-Signature` header on mutating proxy requests (POST/PUT/PATCH/DELETE) — v0.3.2-dev
 - Secrets required at runtime (NOT in git): `.env`, `Sandbox-Certificate.pem`, `Sandbox-Privatekey.pem`
 
 **swift-swagger-ui** (`everyday-ai/swift-swagger-ui:v1.1.0-dev`, port 83)
@@ -41,6 +88,12 @@ SwiftOps is an open-source Swift Alliance Cloud API tooling initiative built on 
 - Distributions list (live, auto-refreshing) and detail pages
 - JSON API endpoints at `/api/*` for future React migration
 - Env vars: `PROXY_BASE_URL`, `TOKEN_SERVER_URL`, `SWAGGER_UI_URL`
+
+**swift-mcp-gateway** (`everyday-ai/swift-mcp-gateway:v0.1.0-dev`, port 85)
+- MCP server exposing Swift Messaging API endpoints as MCP tools (wrapping the token server's `/proxy` route), consumable from Claude Desktop / Claude Code / Agents
+- Env vars: `PROXY_BASE_URL` (points at token server's `/proxy` route)
+- Depends on `swift-token-server`
+- **Convergence point of Track 2 and Track 3** — this is the seed of the Fork 3 product surface
 
 ### Auth Context (Sandbox)
 
@@ -68,35 +121,57 @@ Browsers cannot call `sandbox.swift.com` directly. Swagger UI generates correct 
 
 ---
 
-## Current Roadmap (in order)
+## Roadmap
 
-1. **Option C** — `/proxy` endpoint in `token_server.py` (CORS fix + token caching) `[done]`
-2. **Python UI client** — 3rd container `[done]` — FastAPI + HTMX, port 84, v0.1.0-dev
-3. **Smoke tests, ADR template, open source hygiene** `[done]` — smoke tests, ADR-001, README, LICENSE, CONTRIBUTING all shipped
-4. **GitHub Actions CI** `[done]` — both repos; pip-audit + docker build + smoke tests on every push
-5. **FastAPI evaluation** (candidate to replace Flask) `[done]` — FastAPI selected for UI client
-6. **Search for existing Swift API open-source tools / MCP gateways** `[done]` — OSL baseline 2026-04-23; automated monthly scans active; `swiftinc/api-sample-code` Python dir found → revealed `X-SWIFT-Signature` gap → fixed in v0.3.2-dev
-7. **Supply chain security** — `pip-audit` baseline `[done]`; hash pinning + CI integration `[not started]`
-8. **`X-SWIFT-Signature` for mutating proxy requests** `[done]` — v0.3.2-dev
+### Completed (Track 2 foundation)
+1. Option C — `/proxy` endpoint + token caching ✓
+2. Python UI client (FastAPI + HTMX, port 84) ✓
+3. Smoke tests, ADR template, open source hygiene (LICENSE, CONTRIBUTING, README) ✓
+4. GitHub Actions CI — pip-audit + docker build + smoke tests on every push ✓
+5. FastAPI evaluation — selected for UI client ✓
+6. OSS landscape baseline + monthly scans ✓
+7. `pip-audit` baseline ✓
+8. `X-SWIFT-Signature` for mutating proxy requests (v0.3.2-dev) ✓
+9. swift-mcp-gateway scaffold (v0.1.0-dev, port 85) ✓
+10. swift-mcp-gateway deployed and tested in staging (Windows home lab, 2026-05-01) ✓
+
+### Open — Track 2
+- **Supply chain security:** hash pinning + CI integration (pip-audit baseline done)
+- swift-mcp-gateway hardening — auth, eval methodology, additional tools
+- Prod/demo deployment (hosting provider)
+
+### Open — Track 3 (Fork 3)
+- Define Fork 3 MVP scope (next dedicated thread; see [Fork 3 — MCP Integration Layer Concept](https://www.notion.so/352aa5f988dd814ca819f0e89e68fe52))
+- Resolve open decisions: pack first-or-hybrid, auth/tenancy model, pricing, deployment model, Fork 3↔Track 2 relationship, eval methodology
+- SCB outreach: identify LinkedIn contact, draft first-message variants, request 30-min discovery call
+- Decide OSS-vs-commercial trigger criteria
+- Update claude.ai Project system prompt with Track 3 / Fork 3 context
+
+Track 3 direction is governed by **ADR-004** (Fork 3 selection), **ADR-005** (Path 2c blocked, Path 4(c) deferred, Path 5 BaaS variant blocked), and **ADR-006** (SCB anchor, DSB out of scope).
 
 ---
 
 ## Key Principles
 
 ### Search Before Building
-Always check for existing open-source tools before implementing. Document what was found and why build vs. reuse.
+Always check for existing open-source AND commercial tools before implementing. Document what was found and why build vs. reuse. OSS coverage at the [Open-Source Landscape](https://www.notion.so/34baa5f988dd813e8974ee55e5bbfd7e) Notion page; commercial coverage at [Pack C / Pack A — Competitive Landscape](https://www.notion.so/352aa5f988dd81c4ba42ffbe971b0f54).
 
-### Open Source First
-All tools published unless there's a specific reason not to. Every repo needs: `LICENSE`, `CONTRIBUTING.md`, issue templates, `README`.
+### Open Source First (Track 2); Undecided (Track 3)
+**Track 2** (dev infra) — all tools published as open source unless there's a specific reason not to. Every repo needs: `LICENSE`, `CONTRIBUTING.md`, issue templates, `README`.
+
+**Track 3** (Fork 3) — OSS-vs-commercial end-state is undecided (50/50 framing). Design choices must keep both end-states viable until the SCB design-partner conversation closes. Don't bake in commercial-only assumptions; don't bake in OSS-only assumptions either.
 
 ### Prototype Discipline
 - ADRs for key architectural decisions (state decision, context, options, rationale)
 - 2–3 smoke tests per service
 - Devlog / write-up per milestone
-- GitHub Actions CI (after Option C)
+- GitHub Actions CI on every repo
 
 ### Evaluate Alternatives
-Current stack is not fixed. Regularly surface better languages, frameworks, or architectural approaches. FastAPI is the current candidate to replace Flask.
+Current stack is not fixed. Regularly surface better languages, frameworks, or architectural approaches.
+
+### Honour Closed Decisions
+A list of paths/forks/customers has been explicitly closed (see Track 3 — Product Direction above). If a suggestion drifts toward any of them, stop and flag it as a closed decision rather than proposing — name the ADR being challenged before pivoting. New evidence can reopen a decision; session-level reasoning cannot.
 
 ---
 
@@ -135,6 +210,16 @@ Current stack is not fixed. Regularly surface better languages, frameworks, or a
 │   ├── SWIFT-API-Swift-Messaging-2.1.0-swagger.yaml  ← definitive API spec
 │   ├── swagger-initializer.js
 │   └── index.html
+├── swift-mcp-gateway/                 ← MCP server exposing Swift APIs as MCP tools (git repo)
+│   ├── app/
+│   │   └── main.py                    ← FastMCP server; Streamable HTTP transport at /mcp
+│   ├── docs/
+│   ├── tests/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   └── README.md
 └── swift-ui-client/                   ← FastAPI + HTMX dashboard (git repo)
     ├── app/
     │   ├── main.py                    ← FastAPI app: JSON API + HTMX partials + pages
@@ -165,6 +250,7 @@ Health checks:
 - Proxy test: `curl http://localhost:82/proxy/distributions`
 - Swagger UI: open `http://localhost:83` in browser
 - Dashboard: open `http://localhost:84` in browser
+- MCP gateway: connect from Claude Desktop / Claude Code as an MCP client at `http://localhost:85/mcp` (Streamable HTTP transport). Liveness only: `docker ps --filter name=swift-mcp-gateway`.
 
 ## Tooling
 
@@ -214,11 +300,18 @@ Health checks:
 
 ## Project Docs
 
-Runbooks live in Notion under **Swift Microgateway Lab**. The current runbook reflects the live state of the project. Milestone snapshots are duplicated and frozen when a version ships.
+Runbooks and project context live in Notion under **Swift Lab** (the parent page; renamed from "Swift Microgateway Lab" during the 2026-04-23 pivot). Master narrative lives in **Project Vision & Goals**.
 
-| Version / Milestone | Notion |
-|---|---|
-| Current (live) | [Swift Microgateway Lab](https://www.notion.so/32caa5f988dd81279a53e570b2e74655) |
-| v0.2 — Zero-Footprint Docker | Page ID `34aaa5f9-88dd-8137-a1e0-fb8cc1bf6819` |
+| Page | ID | Role |
+|---|---|---|
+| [Swift Lab](https://www.notion.so/32caa5f988dd81279a53e570b2e74655) | `32caa5f9-88dd-8127-9a53-e570b2e74655` | Parent / navigation hub |
+| [Project Vision & Goals](https://www.notion.so/34baa5f988dd814d94f4e16190ccecc5) | `34baa5f9-88dd-814d-94f4-e16190ccecc5` | Master narrative, three-tracks structure |
+| [ADR Register](https://www.notion.so/34caa5f988dd81d98475cf78440828cc) | `34caa5f9-88dd-81d9-8475-cf78440828cc` | All ADRs (latest: 004/005/006 from 2026-04-30) |
+| [Project Pivot 2 — Path & Fork Direction](https://www.notion.so/352aa5f988dd8130a53bc27473c56b46) | `352aa5f9-88dd-8130-a53b-c27473c56b46` | 2026-04-30 pivot narrative |
+| [Commercialisation Strategy](https://www.notion.so/352aa5f988dd818aa719c74e1cf14885) | `352aa5f9-88dd-818a-a719-c74e1cf14885` | Track 3 parent; Path × Entity matrix |
+| [Fork 3 — MCP Integration Layer Concept](https://www.notion.so/352aa5f988dd814ca819f0e89e68fe52) | `352aa5f9-88dd-814c-a819-f0e89e68fe52` | Product scaffold + Open Decisions list |
+| [Pack C / Pack A — Competitive Landscape](https://www.notion.so/352aa5f988dd81c4ba42ffbe971b0f54) | `352aa5f9-88dd-81c4-ba42-ffbe971b0f54` | Commercial competitor map |
+| [SCB Anchor Customer Dossier](https://www.notion.so/352aa5f988dd81569c41dc6918292054) | `352aa5f9-88dd-8156-9c41-dc6918292054` | Anchor profile + outreach scaffold |
+| [Deep Research Appendix](https://www.notion.so/352aa5f988dd819ebf99e66f493d50fe) | `352aa5f9-88dd-819e-bf99-e66f493d50fe` | Per-path detail, API inventory, lawyer questions |
 
-When starting a new milestone: duplicate the current Notion page, rename it with the version/milestone label, and add a row to this table.
+Use the IDs directly with the Notion MCP (`notion-fetch`) rather than re-searching. For pages not listed here (Open-Source Landscape, Standards & Regulatory Watch, Market Intelligence, Product Signals, Zero-Footprint Docker Runbook, Pivot 1, etc.), navigate from the **Swift Lab** parent.
