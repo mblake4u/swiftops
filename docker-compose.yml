@@ -5,6 +5,9 @@ services:
     container_name: swift-token-server
     env_file:
       - ../swift-token-server/.env
+    volumes:
+      - ../swift-token-server/Sandbox-Certificate.pem:/app/Sandbox-Certificate.pem:ro
+      - ../swift-token-server/Sandbox-Privatekey.pem:/app/Sandbox-Privatekey.pem:ro
     ports:
       - "82:8080"
     restart: unless-stopped
