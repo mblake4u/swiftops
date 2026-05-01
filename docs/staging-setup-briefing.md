@@ -168,9 +168,18 @@ Read the current file, then add the `swift-api-gateway` entry to the
 
 ```json
 "swift-api-gateway": {
-  "url": "http://localhost:85/mcp"
+  "command": "C:\\Program Files\\nodejs\\npx.cmd",
+  "args": ["-y", "mcp-remote", "http://localhost:85/mcp"]
 }
 ```
+
+This uses the `mcp-remote` package (launched via `npx`) as a stdio bridge that
+proxies to the HTTP MCP server on port 85. The URL-only schema
+(`{"url": "..."}`) is rejected by current Claude Desktop versions.
+
+On Windows, the `.cmd` suffix on `npx.cmd` is required — Claude Desktop spawns
+processes via Node's `child_process` which doesn't auto-resolve `.cmd`
+extensions. Prerequisite: Node.js installed (provides `npx`).
 
 After editing, restart Claude Desktop. It should load without MCP errors and
 the Swift API tools (`list_distributions`, `get_distribution`, etc.) will be
@@ -193,5 +202,5 @@ It should return live distribution data from the Swift sandbox.
 |---|---|
 | Container exits immediately | `docker logs swift-token-server` — likely missing `.env` or cert files |
 | Port conflict | Another process on 82–85; `netstat -ano \| findstr :82` |
-| MCP not loading in Claude Desktop | Confirm port 85 is up: `curl http://localhost:85/mcp` |
+| MCP not loading in Claude Desktop | Confirm port 85 is up: `curl http://localhost:85/mcp`. Also check `%APPDATA%\Claude\logs\main.log` for `Skipped invalid MCP server config entries` warnings — if present, the config schema is being rejected and you need the stdio bridge form (Step 7). |
 | Token error in proxy | Check `.env` values match Swift Developer Portal sandbox credentials |
