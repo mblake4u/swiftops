@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
   swift-mcp-gateway:
-    image: everyday-ai/swift-mcp-gateway:v0.1.0-staging
+    image: everyday-ai/swift-mcp-gateway:v0.1.1-staging
     container_name: swift-mcp-gateway
     environment:
       - PROXY_BASE_URL=http://swift-token-server:8080/proxy

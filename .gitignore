@@ -1,1 +1,8 @@
 *.png
+
+# Curated portfolio screenshots are tracked
+!docs/screenshots/*.png
+
+# Private Claude Code context (strategic content, closed decisions,
+# anchor-customer details, etc) — kept locally, never committed
+CLAUDE.local.md
