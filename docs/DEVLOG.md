@@ -171,7 +171,7 @@ The honest framing for a portfolio reader: this is what a solo founder shipped i
 
 ## What's next
 
-A successor project — a non-custodial, rail-neutral intelligence layer in agent-to-agent commerce — sits in early scoping. Not yet public. The regulatory and methodology learnings from SwiftOps carry forward as explicit, named seeds.
+A successor project — agent-to-agent commerce — sits in early scoping. Not yet public. The regulatory and methodology learnings from SwiftOps carry forward as explicit, named seeds.
 
 If anything in this project is useful to you — the code, the methodology, the ADRs, the closed-decisions framework — please use it. The repo is and stays public.
 
