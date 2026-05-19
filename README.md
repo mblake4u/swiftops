@@ -10,7 +10,7 @@ A personal R&D project (March–May 2026) built on twin goals: ship genuinely us
 
 ## See it work
 
-🎥 **[75-second video walkthrough on Loom](https://www.loom.com/share/ca9d735b259a4d3d8f7ae32495f209b6)** — dashboard, MCP gateway in Claude Desktop, and the eval methodology. Recording script: [`docs/demo-video-script.md`](docs/demo-video-script.md).
+🎥 **[Video walkthrough on Loom](https://www.loom.com/share/ca9d735b259a4d3d8f7ae32495f209b6)** — dashboard, MCP gateway in Claude Desktop, and the eval methodology. Recording script: [`docs/demo-video-script.md`](docs/demo-video-script.md).
 
 ![SwiftOps dashboard — live distributions list from the Swift Alliance Cloud sandbox via proxy](docs/screenshots/dashboard.png)
 
