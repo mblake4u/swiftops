@@ -1,4 +1,6 @@
 *.png
+*.mp4
+*.mov
 
 # Curated portfolio screenshots are tracked
 !docs/screenshots/*.png

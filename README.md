@@ -10,6 +10,8 @@ A personal R&D project (March–May 2026) built on twin goals: ship genuinely us
 
 ## See it work
 
+🎥 **[75-second video walkthrough on Loom](https://www.loom.com/share/ca9d735b259a4d3d8f7ae32495f209b6)** — dashboard, MCP gateway in Claude Desktop, and the eval methodology. Recording script: [`docs/demo-video-script.md`](docs/demo-video-script.md).
+
 ![SwiftOps dashboard — live distributions list from the Swift Alliance Cloud sandbox via proxy](docs/screenshots/dashboard.png)
 
 *The HTMX dashboard at `localhost:84` — live distributions list pulled from the Swift Alliance Cloud sandbox, with token-server and Swagger UI status indicators.*
@@ -18,7 +20,17 @@ A personal R&D project (March–May 2026) built on twin goals: ship genuinely us
 
 *Distribution detail view — drill into a single distribution and inspect its routing metadata.*
 
-🎥 **Video walkthrough:** *(coming — covers the dashboard, the MCP gateway in Claude Desktop, and the eval methodology in ~75 seconds. Script: [`docs/demo-video-script.md`](docs/demo-video-script.md))*
+![Claude Desktop using the SwiftOps MCP gateway](docs/screenshots/mcp-in-claude.png)
+
+*The MCP gateway in use — Claude calling Swift API operations as tools, with auth handled transparently by the token-server proxy underneath.*
+
+![Swift Messaging API v2.1.0 in the Swagger UI](docs/screenshots/swagger.png)
+
+*Swagger UI at `localhost:83` — Swift Messaging API v2.1.0 spec baked into the image at build time, browsable end-to-end.*
+
+![The five-cluster failure analysis on the methodology page](docs/screenshots/methodology-clusters.png)
+
+*The five-cluster failure analysis from the eval methodology run — only one bucket is "the model is bad." Full methodology in the [Notion write-up](https://www.notion.so/Evaluating-an-MCP-Gateway-A-Methodology-364aa5f988dd8038bb21d34880ca6eab).*
 
 ---
 
